@@ -27,7 +27,7 @@ fun CustomBottomBar(
     navController: NavController,
     modifier: Modifier = Modifier,
     elementsColor: Color = Color.Blue,
-    backgroundColor: Color = Color.Transparent,
+    backgroundColor: Color = Color.White,
     selectedElementColor: Color = Color.LightGray
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -60,7 +60,7 @@ fun CustomBottomBar(
                             }
                         }
                     },
-                    verticalArrangement = Arrangement . spacedBy (8.dp),
+                    verticalArrangement = Arrangement . spacedBy (2.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Icon(
