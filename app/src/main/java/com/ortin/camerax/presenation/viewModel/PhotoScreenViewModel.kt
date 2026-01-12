@@ -2,7 +2,6 @@ package com.ortin.camerax.presenation.viewModel
 
 import android.content.ContentValues
 import android.content.Context
-import android.os.Build
 import android.provider.MediaStore
 import android.util.Log
 import androidx.camera.core.Camera
