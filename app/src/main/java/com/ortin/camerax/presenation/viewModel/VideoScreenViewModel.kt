@@ -47,6 +47,10 @@ class VideoScreenViewModel : ViewModel() {
 
     private var timerJob: Job? = null
 
+    private val recorder = Recorder.Builder()
+        .setQualitySelector(QualitySelector.from(Quality.HD))
+        .build()
+
     fun bindCamera(
         context: Context,
         lifecycleOwner: LifecycleOwner,
@@ -61,10 +65,6 @@ class VideoScreenViewModel : ViewModel() {
                 surfaceProvider = previewView.surfaceProvider
             }
 
-            val recorder = Recorder.Builder()
-                .setQualitySelector(QualitySelector.from(Quality.HD))
-                .build()
-
             videoCapture = VideoCapture.withOutput(recorder)
 
             try {
@@ -76,6 +76,10 @@ class VideoScreenViewModel : ViewModel() {
                     preview,
                     videoCapture
                 )
+
+                if (isRecording.value) {
+                    recording?.resume()
+                }
             } catch (e: Exception) {
                 Log.e(TAG, "Bind failed", e)
             }
@@ -115,6 +119,7 @@ class VideoScreenViewModel : ViewModel() {
 
         recording = videoCapture.output
             .prepareRecording(context, outputOptions)
+            .asPersistentRecording()
             .withAudioEnabled()
             .start(ContextCompat.getMainExecutor(context)) { event ->
                 when (event) {
@@ -139,14 +144,26 @@ class VideoScreenViewModel : ViewModel() {
             }
     }
 
-    fun changeCamera() {
+    fun changeCamera(
+        context: Context,
+        lifecycleOwner: LifecycleOwner,
+        previewView: PreviewView
+    ) {
+        if (isRecording.value) {
+            recording?.pause()
+        }
+
         cameraSelector.value = if (cameraSelector.value == CameraSelector.DEFAULT_BACK_CAMERA) {
             CameraSelector.DEFAULT_FRONT_CAMERA
         } else {
             CameraSelector.DEFAULT_BACK_CAMERA
         }
 
-        // TODO - поворачивать камеру во время записи
+        bindCamera(
+            context = context,
+            lifecycleOwner = lifecycleOwner,
+            previewView = previewView
+        )
     }
 
     private fun stopRecording() {

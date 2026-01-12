@@ -6,8 +6,11 @@ import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
@@ -24,7 +27,7 @@ fun CameraPreview(
 
     val previewView = remember { PreviewView(context) }
 
-    val scale = remember { mutableFloatStateOf(1f) }
+    var zoom by remember { mutableStateOf(0f) }
     val camera = remember { viewModel.camera }
 
     LaunchedEffect(viewModel.cameraSelector.value) {
@@ -44,13 +47,15 @@ fun CameraPreview(
                         viewModel.focusOnPoint(it, offset.x, offset.y, previewView)
                     }
                 }
-            } // TODO - затестить
+            }
             .pointerInput(camera) {
                 detectTransformGestures { _, _, zoomChange, _ ->
                     camera?.let {
-                        val newZoom = (scale.floatValue * zoomChange).coerceIn(0f, 1f)
-                        scale.floatValue = newZoom
-                        it.cameraControl.setLinearZoom(newZoom)
+                        val newScale = zoom - (1f - zoomChange)
+
+                        zoom = newScale.coerceIn(0f, 1f)
+
+                        it.cameraControl.setLinearZoom(zoom)
                     }
                 }
             },

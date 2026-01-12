@@ -5,6 +5,7 @@ import android.content.pm.PackageManager
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.camera.view.PreviewView
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -17,8 +18,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
-import com.ortin.camerax.presenation.component.VideoCameraPreview
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.ortin.camerax.presenation.component.VideoControls
 import com.ortin.camerax.presenation.viewModel.VideoScreenViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -26,7 +28,10 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun VideoScreen() {
     val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
     val viewModel: VideoScreenViewModel = koinViewModel()
+
+    val previewView = remember { PreviewView(context) }
 
     val hasPermission = remember { mutableStateOf(false) }
 
@@ -82,7 +87,18 @@ fun VideoScreen() {
         }
     } else {
         Box(modifier = Modifier.fillMaxSize()) {
-            VideoCameraPreview(viewModel)
+            LaunchedEffect(Unit) {
+                viewModel.bindCamera(
+                    context = context,
+                    lifecycleOwner = lifecycleOwner,
+                    previewView = previewView
+                )
+            }
+
+            AndroidView(
+                modifier = Modifier.fillMaxSize(),
+                factory = { previewView }
+            )
 
             VideoControls(
                 modifier = Modifier
@@ -91,7 +107,13 @@ fun VideoScreen() {
                 isRecording = viewModel.isRecording.value,
                 duration = viewModel.recordingDuration.longValue,
                 onRecordClick = { viewModel.toggleRecording(context) },
-                onChangeCamera = { viewModel.changeCamera() }
+                onChangeCamera = {
+                    viewModel.changeCamera(
+                        context = context,
+                        lifecycleOwner = lifecycleOwner,
+                        previewView = previewView
+                    )
+                }
             )
         }
     }

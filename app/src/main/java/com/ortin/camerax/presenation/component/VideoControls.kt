@@ -47,18 +47,16 @@ fun VideoControls(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        if (!isRecording) {
-            IconButton(onClick = onChangeCamera) {
-                Icon(
-                    modifier = Modifier.size(32.dp),
-                    painter = painterResource(R.drawable.ic_reverse_camera),
-                    contentDescription = "change camera",
-                    tint = elementsColor
-                )
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
+        IconButton(onClick = onChangeCamera) {
+            Icon(
+                modifier = Modifier.size(32.dp),
+                painter = painterResource(R.drawable.ic_reverse_camera),
+                contentDescription = "change camera",
+                tint = elementsColor
+            )
         }
+
+        Spacer(modifier = Modifier.height(8.dp))
 
         Box(
             modifier = Modifier
